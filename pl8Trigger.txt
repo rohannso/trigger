@@ -1,0 +1,72 @@
+create database prac8;
+use prac8;
+-- Create the main Library table
+CREATE TABLE Library (
+    book_id INT PRIMARY KEY,
+    title VARCHAR(200),
+    author VARCHAR(100),
+    issued_to VARCHAR(100)
+);
+
+-- Create the audit table
+CREATE TABLE Library_Audit (
+    audit_id INT PRIMARY KEY AUTO_INCREMENT,
+    book_id INT,
+    action_type VARCHAR(20),
+    old_title VARCHAR(200),
+    old_author VARCHAR(100),
+    old_issued_to VARCHAR(100)
+);
+
+INSERT INTO Library (book_id, title, author, issued_to) VALUES
+(1, 'Database Management', 'John Doe', 'Mohit'),
+(2, 'Python Programming', 'Jane Smith', 'Suresh'),
+(3, 'Web Development', 'Bob Wilson', 'Jack');
+
+DELIMITER $
+
+Create Trigger before_update
+Before Update
+On Library
+For each Row
+Begin
+Insert Into Library_Audit(book_id,action_type,old_title,old_author,old_issued_to)
+Values(OLD.book_id,'Before Update',OLD.title,OLD.author,OLD.issued_to);
+End;
+$
+
+Create Trigger after_update
+After Update
+On Library
+For each Row
+Begin
+Insert Into Library_Audit(book_id,action_type,old_title,old_author,old_issued_to)
+Values(OLD.book_id,'After Update',OLD.title,OLD.author,OLD.issued_to);
+End;
+$
+
+Create Trigger before_delete
+Before Delete
+On Library
+For each Row
+Begin
+Insert Into Library_Audit(book_id,action_type,old_title,old_author,old_issued_to)
+Values(OLD.book_id,'Before Delete',OLD.title,OLD.author,OLD.issued_to);
+End;
+$
+
+Create Trigger after_delete
+AFTER DELETE
+On Library
+For each Row
+Begin
+Insert Into Library_Audit(book_id,action_type,old_title,old_author,old_issued_to)
+Values(OLD.book_id,'After Delete',OLD.title,OLD.author,OLD.issued_to);
+End;
+$
+
+Update Library
+Set issued_to='Amit'
+Where book_id=1$
+
+Delete From Library Where book_id="1"$
